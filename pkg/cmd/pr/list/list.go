@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/MakeNowJust/heredoc"
@@ -29,7 +28,7 @@ type ListOptions struct {
 	LimitResults int
 	Exporter     cmdutil.Exporter
 
-	State      string
+	State      []string
 	BaseBranch string
 	HeadBranch string
 	Labels     []string
@@ -100,7 +99,7 @@ func NewCmdList(f *cmdutil.Factory, runF func(*ListOptions) error) *cobra.Comman
 
 	cmd.Flags().BoolVarP(&opts.WebMode, "web", "w", false, "List pull requests in the web browser")
 	cmd.Flags().IntVarP(&opts.LimitResults, "limit", "L", 30, "Maximum number of items to fetch")
-	cmdutil.StringEnumFlag(cmd, &opts.State, "state", "s", "open", []string{"open", "closed", "merged", "all"}, "Filter by state")
+	cmd.Flags().StringSliceVarP(&opts.State, "state", "s", nil, "Filter by state")
 	cmd.Flags().StringVarP(&opts.BaseBranch, "base", "B", "", "Filter by base branch")
 	cmd.Flags().StringVarP(&opts.HeadBranch, "head", "H", "", "Filter by head branch")
 	cmd.Flags().StringSliceVarP(&opts.Labels, "label", "l", nil, "Filter by label")
@@ -139,14 +138,9 @@ func listRun(opts *ListOptions) error {
 		return err
 	}
 
-	prState := strings.ToLower(opts.State)
-	if prState == "open" && shared.QueryHasStateClause(opts.Search) {
-		prState = ""
-	}
-
 	filters := shared.FilterOptions{
 		Entity:     "pr",
-		State:      prState,
+		State:      opts.State,
 		Author:     opts.Author,
 		Assignee:   opts.Assignee,
 		Labels:     opts.Labels,

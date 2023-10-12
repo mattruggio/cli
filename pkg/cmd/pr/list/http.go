@@ -69,18 +69,22 @@ func listPullRequests(httpClient *http.Client, repo ghrepo.Interface, filters pr
 		"repo":  repo.RepoName(),
 	}
 
-	switch filters.State {
-	case "open":
-		variables["state"] = []string{"OPEN"}
-	case "closed":
-		variables["state"] = []string{"CLOSED", "MERGED"}
-	case "merged":
-		variables["state"] = []string{"MERGED"}
-	case "all":
-		variables["state"] = []string{"OPEN", "CLOSED", "MERGED"}
-	default:
-		return nil, fmt.Errorf("invalid state: %s", filters.State)
+	states := []string{}
+	for _, state := range filters.State {
+		switch state {
+		case "open":
+			states = append(states, "OPEN")
+		case "closed":
+			states = append(states, "CLOSED", "MERGED")
+		case "merged":
+			states = append(states, "MERGED")
+		case "all":
+			states = append(states, "OPEN", "CLOSED", "MERGED")
+		default:
+			return nil, fmt.Errorf("invalid state: %s", state)
+		}
 	}
+	variables["state"] = states
 
 	if filters.BaseBranch != "" {
 		variables["baseBranch"] = filters.BaseBranch

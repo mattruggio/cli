@@ -9,16 +9,18 @@ import (
 )
 
 func listIssues(client *api.Client, repo ghrepo.Interface, filters prShared.FilterOptions, limit int) (*api.IssuesAndTotalCount, error) {
-	var states []string
-	switch filters.State {
-	case "open", "":
-		states = []string{"OPEN"}
-	case "closed":
-		states = []string{"CLOSED"}
-	case "all":
-		states = []string{"OPEN", "CLOSED"}
-	default:
-		return nil, fmt.Errorf("invalid state: %s", filters.State)
+	states := []string{}
+	for _, state := range filters.State {
+		switch state {
+		case "open":
+			states = append(states, "OPEN")
+		case "closed":
+			states = append(states, "CLOSED")
+		case "all":
+			states = append(states, "OPEN", "CLOSED")
+		default:
+			return nil, fmt.Errorf("invalid state: %s", state)
+		}
 	}
 
 	fragments := fmt.Sprintf("fragment issue on Issue {%s}", api.IssueGraphQL(filters.Fields))

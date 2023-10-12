@@ -73,7 +73,7 @@ type Qualifiers struct {
 	ReviewedBy          string
 	Size                string
 	Stars               string
-	State               string
+	State               []string
 	Status              string
 	Team                string
 	TeamReviewRequested string

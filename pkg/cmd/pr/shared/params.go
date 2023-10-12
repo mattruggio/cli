@@ -166,11 +166,11 @@ type FilterOptions struct {
 	Milestone  string
 	Repo       string
 	Search     string
-	State      string
+	State      []string
 }
 
 func (opts *FilterOptions) IsDefault() bool {
-	if opts.State != "open" {
+	if len(opts.State) > 0 {
 		return false
 	}
 	if len(opts.Labels) > 0 {
@@ -214,13 +214,17 @@ func ListURLWithQuery(listURL string, options FilterOptions) (string, error) {
 }
 
 func SearchQueryBuild(options FilterOptions) string {
-	var is, state string
-	switch options.State {
-	case "open", "closed":
-		state = options.State
-	case "merged":
-		is = "merged"
+	states, is := []string{}, []string{}
+
+	for _, state := range options.State {
+		switch state {
+		case "open", "closed":
+			states = append(states, state)
+		case "merged":
+			is = append(is, "merged")
+		}
 	}
+
 	q := search.Query{
 		Qualifiers: search.Qualifiers{
 			Assignee:  options.Assignee,
@@ -232,8 +236,8 @@ func SearchQueryBuild(options FilterOptions) string {
 			Mentions:  options.Mention,
 			Milestone: options.Milestone,
 			Repo:      []string{options.Repo},
-			State:     state,
-			Is:        []string{is},
+			State:     states,
+			Is:        is,
 			Type:      options.Entity,
 		},
 	}

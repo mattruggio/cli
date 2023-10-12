@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/MakeNowJust/heredoc"
@@ -31,7 +30,7 @@ type ListOptions struct {
 
 	Assignee     string
 	Labels       []string
-	State        string
+	State        []string
 	LimitResults int
 	Author       string
 	Mention      string
@@ -99,7 +98,7 @@ func NewCmdList(f *cmdutil.Factory, runF func(*ListOptions) error) *cobra.Comman
 	cmd.Flags().BoolVarP(&opts.WebMode, "web", "w", false, "List issues in the web browser")
 	cmd.Flags().StringVarP(&opts.Assignee, "assignee", "a", "", "Filter by assignee")
 	cmd.Flags().StringSliceVarP(&opts.Labels, "label", "l", nil, "Filter by label")
-	cmdutil.StringEnumFlag(cmd, &opts.State, "state", "s", "open", []string{"open", "closed", "all"}, "Filter by state")
+	cmd.Flags().StringSliceVarP(&opts.State, "state", "s", nil, "Filter by state")
 	cmd.Flags().IntVarP(&opts.LimitResults, "limit", "L", 30, "Maximum number of issues to fetch")
 	cmd.Flags().StringVarP(&opts.Author, "author", "A", "", "Filter by author")
 	cmd.Flags().StringVar(&appAuthor, "app", "", "Filter by GitHub App author")
@@ -131,10 +130,10 @@ func listRun(opts *ListOptions) error {
 		return err
 	}
 
-	issueState := strings.ToLower(opts.State)
-	if issueState == "open" && prShared.QueryHasStateClause(opts.Search) {
-		issueState = ""
-	}
+	//issueState := strings.ToLower(opts.State)
+	//if issueState == "open" && prShared.QueryHasStateClause(opts.Search) {
+	//	issueState = ""
+	//}
 
 	if opts.Detector == nil {
 		cachedClient := api.NewCachedHTTPClient(httpClient, time.Hour*24)
@@ -151,7 +150,7 @@ func listRun(opts *ListOptions) error {
 
 	filterOptions := prShared.FilterOptions{
 		Entity:    "issue",
-		State:     issueState,
+		State:     opts.State,
 		Assignee:  opts.Assignee,
 		Labels:    opts.Labels,
 		Author:    opts.Author,

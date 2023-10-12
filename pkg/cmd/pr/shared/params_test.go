@@ -32,7 +32,7 @@ func Test_listURLWithQuery(t *testing.T) {
 				listURL: "https://example.com/path?a=b",
 				options: FilterOptions{
 					Entity: "issue",
-					State:  "open",
+					State:  []string{"open"},
 				},
 			},
 			want:    "https://example.com/path?a=b&q=state%3Aopen+type%3Aissue",
@@ -44,7 +44,7 @@ func Test_listURLWithQuery(t *testing.T) {
 				listURL: "https://example.com/path",
 				options: FilterOptions{
 					Entity: "pr",
-					State:  "open",
+					State:  []string{"open"},
 					Draft:  &trueBool,
 				},
 			},
@@ -57,7 +57,7 @@ func Test_listURLWithQuery(t *testing.T) {
 				listURL: "https://example.com/path",
 				options: FilterOptions{
 					Entity: "pr",
-					State:  "open",
+					State:  []string{"open"},
 					Draft:  &falseBool,
 				},
 			},
@@ -70,7 +70,7 @@ func Test_listURLWithQuery(t *testing.T) {
 				listURL: "https://example.com/path",
 				options: FilterOptions{
 					Entity:     "issue",
-					State:      "open",
+					State:      []string{"open"},
 					Assignee:   "bo",
 					Author:     "ka",
 					BaseBranch: "trunk",
@@ -87,7 +87,7 @@ func Test_listURLWithQuery(t *testing.T) {
 				listURL: "https://example.com/path",
 				options: FilterOptions{
 					Entity:    "pr",
-					State:     "open",
+					State:     []string{"open"},
 					Labels:    []string{"docs", "help wanted"},
 					Milestone: `Codename "What Was Missing"`,
 				},
